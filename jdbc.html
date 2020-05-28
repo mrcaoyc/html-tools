@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>jdbc模板</title>
+		<link href="css/element-ui/2.2.1/theme-chalk/index.css" rel="stylesheet"/>
+	</head>
+	<body>
+		<div id="app" style="width: 600px;">
+			<el-form ref="form" :model="form" label-width="120px">
+			  <el-form-item label="服务器地址">
+			    <el-input v-model="datasource.host"></el-input>
+			  </el-form-item>
+			  <el-form-item label="端口">
+			    <el-input v-model="datasource.port"></el-input>
+			  </el-form-item>
+			  <el-form-item label="用户名">
+			    <el-input v-model="datasource.username"></el-input>
+			  </el-form-item>
+			  <el-form-item label="密码">
+			    <el-input v-model="datasource.password"></el-input>
+			  </el-form-item>
+			  <el-form-item label="数据库">
+			    <el-input v-model="datasource.database"></el-input>
+			  </el-form-item>
+			  <el-form-item>
+			    <el-button type="primary" @click="onSubmit">立即创建</el-button>
+			    <el-button>取消</el-button>
+			  </el-form-item>
+			</el-form>
+		</div>
+		<script src="js/vue.js"></script>
+		<script src="js/axios.min.js"></script>
+		<script type="text/javascript" src="js/index.js"></script>
+		<script>
+			var app = new Vue({
+				el: '#app',
+				data: {
+					datasource:{
+						host:"127.0.0.1",
+						port:3306,
+						username:"root",
+						password:"root",
+						database:"demo"
+						
+					}
+				}
+			});
+		</script>
+	</body>
+</html>
