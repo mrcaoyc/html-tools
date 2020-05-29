@@ -6,28 +6,41 @@
 		<link href="css/element-ui/2.2.1/theme-chalk/index.css" rel="stylesheet"/>
 	</head>
 	<body>
-		<div id="app" style="width: 600px;">
-			<el-form ref="form" :model="form" label-width="120px">
+		<div id="app" style="width: 700px;">
+			<el-form  label-width="120px" style="width: 100%;">
 			  <el-form-item label="服务器地址">
-			    <el-input v-model="datasource.host"></el-input>
+			    <el-input v-model="datasource.input.host"></el-input>
 			  </el-form-item>
 			  <el-form-item label="端口">
-			    <el-input v-model="datasource.port"></el-input>
+			    <el-input v-model="datasource.input.port"></el-input>
 			  </el-form-item>
 			  <el-form-item label="用户名">
-			    <el-input v-model="datasource.username"></el-input>
+			    <el-input v-model="datasource.input.username"></el-input>
 			  </el-form-item>
 			  <el-form-item label="密码">
-			    <el-input v-model="datasource.password"></el-input>
+			    <el-input v-model="datasource.input.password"></el-input>
 			  </el-form-item>
 			  <el-form-item label="数据库">
-			    <el-input v-model="datasource.database"></el-input>
+			    <el-input v-model="datasource.input.database"></el-input>
 			  </el-form-item>
+			  <el-form-item label="数据库类型">
+			      <el-select v-model="datasource.input.type" placeholder="数据库类型">
+			        <el-option label="MYSQL" value="mysql"></el-option>
+			        <el-option label="SQL SERVER" value="sql server"></el-option>
+			      </el-select>
+			    </el-form-item>
 			  <el-form-item>
-			    <el-button type="primary" @click="onSubmit">立即创建</el-button>
-			    <el-button>取消</el-button>
+				  <el-input type="textarea" :rows="10" placeholder="请输入内容" v-model="datasource.output" readonly="true"/>
 			  </el-form-item>
 			</el-form>
+			<el-table style="width: 100%"  :data="mysqlParams">
+			  <el-table-column prop="name" label="参数" width="180"></el-table-column>
+			  <el-table-column prop="description" label="说明" ></el-table-column>
+			</el-table>
+
+	
+		
+			
 		</div>
 		<script src="js/vue.js"></script>
 		<script src="js/axios.min.js"></script>
@@ -37,13 +50,68 @@
 				el: '#app',
 				data: {
 					datasource:{
-						host:"127.0.0.1",
-						port:3306,
-						username:"root",
-						password:"root",
-						database:"demo"
+						input:{
+							host:"127.0.0.1",
+							port:3306,
+							username:"root",
+							password:"root",
+							database:"demo",
+							type:"mysql"
+						},
+						output:""
+					},
+					mysqlParams:[
+						{name:"useUnicode",description:"是否使用Unicode字符集，如果参数characterEncoding设置为gb2312或gbk，本参数值必须设置为true "},
+						{name:"characterEncoding",description:"当useUnicode设置为true，给定编码，常用utf8，默认是：autodetect"},
+						{name:"autoReconnect",description:"当数据库连接异常中断时，是否自动重新连接？"},
+						{name:"serverTimezone",description:"连接数据库的时区信息"},
+						{name:"autoReconnectForPools",description:"是否使用针对数据库连接池的重连策略"},
+						{name:"maxReconnects",description:"autoReconnect设置为true时，重试连接的次数"},
+						{name:"createDatabaseIfNotExist=true",description:"连接数据库时如果没有库名自动创建"},
+						{name:"initialTimeout",description:"autoReconnect设置为true时，两次重连之间的时间间隔，单位：秒"},
+						{name:"connectTimeout",description:"和数据库服务器建立socket连接时的超时，单位：毫秒。 0表示永不超时"},
+						{name:"socketTimeout",description:"socket操作（读写）超时，单位：毫秒。 0表示永不超时"},
+						{name:"failOverReadOnly",description:"自动重连成功后，连接是否设置为只读？"},
+						{name:"zeroDateTimeBehavior",description:"\"exception\", \"round\" and \"convertToNull\"，默认exception"},
+						{name:"maxRows",description:"返回的最大行数，默认-1，不限制"},
+						{name:"autoDeserialize",description:"driver自动发现，并行化存储blob字段"},
+						{name:"allowMultiQueries",description:"允许一个statement执行多个用;分割的sql，默认false"},
+						{name:"useSSL",description:" 连接MySQL 5.5.45+, 5.6.26+ or 5.7.6+默认为true，之前低版本为false"}
+					]
+				},
+				methods:{
+					compute: function(){
+						let host=this.datasource.input.host;
+						let port=this.datasource.input.port;
+						let username=this.datasource.input.username;
+						let password=this.datasource.input.password;
+						let database=this.datasource.input.database;
+						let type=this.datasource.input.type;
+						let output="";
+						switch(type){
+							case "mysql":
+								output=`spring.datasource.url=jdbc:mysql://${host}:${port}/${database}\r\n`;
+								break;
+							case "sql server":
+								output=`spring.datasource.url=jdbc:sqlserver://${host}:${port};DatabaseName=${database}\r\n`;
+								break;
+						}
 						
+						output+=`spring.datasource.username=${username}\r\n`;
+						output+=`spring.datasource.password=${password}`;
+						this.datasource.output=output;
 					}
+				},
+				watch:{
+					"datasource.input":{
+						deep:true,
+						handler(){
+							this.compute();
+						}
+					}
+				},
+				mounted:function(){
+					this.compute();
 				}
 			});
 		</script>
